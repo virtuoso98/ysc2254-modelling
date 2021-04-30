@@ -2,6 +2,7 @@ dice_prob <- c(1/36, 2/36, 3/36, 4/36, 5/36, 6/36, 5/36, 4/36, 3/36, 2/36, 1/36)
 
 transition <- matrix(0, nrow = 100, ncol = 100)
 
+# section 17.6
 # initial matrix w/o snakes and ladders
 for (i in 1:99){
   for (j in 1:11){
@@ -84,7 +85,7 @@ plot(res_new,
      xlab = "Number of Dice Rolls",
      pch = 19, cex = 0.5)
 
-points(res_initial)
+points(res_initial, col = "red")
 
 
 
