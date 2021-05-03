@@ -127,7 +127,6 @@ legend("bottomright",
 # Transition matrix section
 Q <- t(transition[1:99, 1:99])
 I <- diag(99)
-R <- transition[100, 1:99]
 F_matrix <- solve(I - Q)
 Col_1 <- rep(1, 99)
 E_steps <- F_matrix %*% Col_1
@@ -137,4 +136,3 @@ plot(E_steps, pch = 19, col = "purple", cex = 0.8,
      xlab = "Square Number",
      main = "Plot of Number of steps taken to hit square 100")
 lines(E_steps, col = "purple")
-min(E_steps)
