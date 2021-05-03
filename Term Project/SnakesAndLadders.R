@@ -19,31 +19,35 @@ make_trans <- function(){
       }
     }
   }
+  # last square is absorbing
+  trans[100, 100] <- 1
   return(trans)
 }
 
 transition <- make_trans()
 
-# last square is absorbing
-transition[100, 100] <- 1
-
 # default state matrix, at square 1
 state <- rep(0, 100)
 state[1] = 1
 
-# run markov chain 100 times
+# run markov chain 90 times
 res_initial <- c()
 for (i in 1:90){
-  state <- transition %*% state
   res_initial <- append(res_initial, state[100])
+  state <- transition %*% state
 }
 
 plot(res_initial, 
      main = "Number of Rolls to win w/o Snakes & Ladder",
      ylab = "Probability of hitting last square",
      xlab = "Number of Dice Rolls",
-     pch = 19, cex = 0.5)
+     pch = 19, cex = 0.7, col = "red")
 
+lines(res_initial, 
+      pch = 18, 
+      col = "red", 
+      lty = 2,
+      cex = 2)
 
 # swapping function for snakes and ladder
 transfer_aux <- function(square, old, new, trans){
@@ -85,8 +89,8 @@ state_new[1] = 1
 # run markov chain 100 times
 res_new <- c()
 for (i in 1:90){
-  state_new <- transition %*% state_new
   res_new <- append(res_new, state_new[100])
+  state_new <- transition %*% state_new
 }
 
 
@@ -113,9 +117,24 @@ lines(res_initial,
 
 
 legend("bottomright", 
-       legend = c("No Snakes and Ladder", 
-                  "Snakes and Ladder"),
+       legend = c("Snakes and Ladder", 
+                  "No Snakes and Ladder"),
        col = c("Black", "Red"),
        cex = 1.5,
        lty = 1:2,
        pch = 19)
+
+# Transition matrix section
+Q <- t(transition[1:99, 1:99])
+I <- diag(99)
+R <- transition[100, 1:99]
+F_matrix <- solve(I - Q)
+Col_1 <- rep(1, 99)
+E_steps <- F_matrix %*% Col_1
+
+plot(E_steps, pch = 19, col = "purple", cex = 0.8,
+     ylab = "Expected Number of Steps to hit 100",
+     xlab = "Square Number",
+     main = "Plot of Number of steps taken to hit square 100")
+lines(E_steps, col = "purple")
+min(E_steps)
