@@ -21,9 +21,8 @@ eval_g_eq <- function(x){
     24 - (x[16] + x[17] + x[18] + x[19] + x[20]),
     24 - (x[21] + x[22] + x[23] + x[24] + x[25]),
     24 - (x[26] + x[27] + x[28] + x[29] + x[30]),
-    24 - (x[31] + x[32] + x[33] + x[34] + x[35]),
+    24 - (x[31] + x[32] + x[33] + x[34] + x[35])
     # additional leisure constraint
-    x[33] + x[28] + x[23] + x[18] + x[13] + x[8] + x[3] - 20
   )
   return(constr)
 }
@@ -48,6 +47,16 @@ meal_var <- function(x){
   return (var / 7)
 }
 
+sleep_minus_work <- function(x){
+  sleep_total_sq <- 0
+  work_total_sq <- 0
+  for (i in 1:7){
+    sleep_total_sq <- x[5*i] ^ 2
+    work_total_sq <- x[5*i - 1] ^ 2
+  }
+  return(0.9 * sleep_total_sq - work_total_sq)
+}
+
 eval_g_ineq <- function(x){
   constr <- c(
     # constraint on mealtime
@@ -56,8 +65,8 @@ eval_g_ineq <- function(x){
     1.0 - x[11],
     1.0 - x[16],
     1.0 - x[21],
-    1.0 - x[26],
-    1.0 - x[31],
+    1.5 - x[26],
+    1.5 - x[31],
     # upper limit
     x[1] - 1.5,
     x[6] - 1.5,
@@ -132,12 +141,15 @@ eval_g_ineq <- function(x){
     x[22] - 2,
     x[27] - 7,
     x[32] - 7,
-    # leisure constraint on weekends
+    # leisure constraint on weekends and total leisure
     x[29] + x[30] + x[26] + x[27] - x[28]^2,
     x[34] + x[35] + x[31] + x[32] - x[33]^2,
-    # constraint on sleep variance
-    sleep_var(x) - 5,
-    meal_var - 5
+    20 - x[33] + x[28] + x[23] + x[18] + x[13] + x[8] + x[3],
+    # constraint on sleep and meal variance
+    sleep_var(x) - 8,
+    meal_var(x) - 6,
+    sleep_minus_work(x)
+    # sleep constraint vs commitment
   )
   return (constr)
 }
@@ -151,7 +163,7 @@ local_opts <- list( "algorithm" = "NLOPT_LD_MMA",
 
 opts <- list( "algorithm"= "NLOPT_GN_ISRES",
               "xtol_rel"= 1.0e-15,
-              "maxeval"= 150000,
+              "maxeval"= 200000,
               "local_opts" = local_opts,
               "print_level" = 0 )
 
@@ -167,3 +179,4 @@ res <- nloptr(x0 = x0,
               opts = opts)
 
 print(res)
+
