@@ -3,7 +3,7 @@
 
 library("nloptr")
 
-# objective function minimizes variance in utility
+# objective function maximizes utility function
 obj <- function(x){
   total = 0
   for (i in 1:35){
@@ -22,7 +22,6 @@ eval_g_eq <- function(x){
     24 - (x[21] + x[22] + x[23] + x[24] + x[25]),
     24 - (x[26] + x[27] + x[28] + x[29] + x[30]),
     24 - (x[31] + x[32] + x[33] + x[34] + x[35])
-    # additional leisure constraint
   )
   return(constr)
 }
@@ -48,6 +47,8 @@ meal_var <- function(x){
 }
 
 sleep_minus_work <- function(x){
+  # function to calculate difference in 
+  # sum of squares of sleep and work
   sleep_total_sq <- 0
   work_total_sq <- 0
   for (i in 1:7){
@@ -60,6 +61,7 @@ sleep_minus_work <- function(x){
 eval_g_ineq <- function(x){
   constr <- c(
     # constraint on mealtime
+    # lower limit
     1.0 - x[1],
     1.0 - x[6],
     1.0 - x[11],
@@ -144,24 +146,27 @@ eval_g_ineq <- function(x){
     # leisure constraint on weekends and total leisure
     x[29] + x[30] + x[26] + x[27] - x[28]^2,
     x[34] + x[35] + x[31] + x[32] - x[33]^2,
+    # minimum number of leisure hours in a hour
     20 - (x[33] + x[28] + x[23] + x[18] + x[13] + x[8] + x[3]),
-    # constraint on sleep and meal variance
+    # upper limit constraint on sleep and meal variance
     sleep_var(x) - 8,
     meal_var(x) - 6,
-    # sleep constraint vs work
+    # sleep constraint vs work (function above)
     sleep_minus_work(x),
     # Tuesday, Weds, Friday constraint
+    # on Meal, Commitment and Leisure
     x[7]^2 - x[8]^2 - x[6]^2,
     x[12]^2 - x[13]^2 - x[11]^2,
     x[22]^2 - x[23]^2 - x[21]^2,
     # Mon, Thursday constraint
+    # on Meal, Commitment and Leisure
     0.6 * x[2]^2 - x[3]^2 - x[1]^2,
     0.6 * x[17]^2 - x[18]^2 - x[16]^2
   )
   return (constr)
 }
 
-
+# defining upper and lower bounds
 lb <- rep(0, 35)
 ub <- rep(12, 35)
 
@@ -187,6 +192,8 @@ res <- nloptr(x0 = x0,
 
 print(res)
 
+# same representation as seen
+# in my term project report
 matrix_rep <- matrix(res$solution,
                      nrow = 5,
                      ncol = 7)

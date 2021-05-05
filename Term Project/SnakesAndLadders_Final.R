@@ -4,11 +4,12 @@
 dice_prob <- c(1/36, 2/36, 3/36, 4/36, 5/36, 6/36, 
                5/36, 4/36, 3/36, 2/36, 1/36)
 
-# section 17.6
+
 # initial matrix w/o snakes and ladders
 make_trans <- function(){
   trans <- matrix(0, nrow = 100, ncol = 100)
-  for (i in 1:99){
+  for (i in 1:99){ 
+    # up to 99 because 100th square absorbing
     for (j in 1:11){
       if (i + j + 1 > 100){
         # if counter goes beyond the grid
@@ -84,9 +85,11 @@ transition <- transfer(63, 95, transition)
 transition <- transfer(68, 98, transition)
 
 state_new <- rep(0, 100)
+# counter starts from square 1
 state_new[1] = 1
 
-# run markov chain 100 times
+# run markov chain 90 times to get 
+# state after 90 rolls
 res_new <- c()
 for (i in 1:90){
   res_new <- append(res_new, state_new[100])
@@ -94,6 +97,7 @@ for (i in 1:90){
 }
 
 
+# comparing old plot vs new plot 
 plot(res_new, 
      main = "Plot of Win probability against dice rolls",
      ylab = "Probability of hitting last square",
@@ -125,12 +129,15 @@ legend("bottomright",
        pch = 19)
 
 # Transition matrix section
+# Part II 
 Q <- t(transition[1:99, 1:99])
 I <- diag(99)
 F_matrix <- solve(I - Q)
 Col_1 <- rep(1, 99)
+# calculating expected number of steps
 E_steps <- F_matrix %*% Col_1
 
+#visualizations
 plot(E_steps, pch = 19, col = "purple", cex = 0.8,
      ylab = "Expected Number of Steps to hit 100",
      xlab = "Square Number",
