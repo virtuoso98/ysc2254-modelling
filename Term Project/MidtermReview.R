@@ -54,7 +54,7 @@ sleep_minus_work <- function(x){
     sleep_total_sq <- x[5*i] ^ 2
     work_total_sq <- x[5*i - 1] ^ 2
   }
-  return(0.9 * sleep_total_sq - work_total_sq)
+  return(work_total_sq - 0.95 * sleep_total_sq)
 }
 
 eval_g_ineq <- function(x){
@@ -144,12 +144,19 @@ eval_g_ineq <- function(x){
     # leisure constraint on weekends and total leisure
     x[29] + x[30] + x[26] + x[27] - x[28]^2,
     x[34] + x[35] + x[31] + x[32] - x[33]^2,
-    20 - x[33] + x[28] + x[23] + x[18] + x[13] + x[8] + x[3],
+    20 - (x[33] + x[28] + x[23] + x[18] + x[13] + x[8] + x[3]),
     # constraint on sleep and meal variance
     sleep_var(x) - 8,
     meal_var(x) - 6,
-    sleep_minus_work(x)
-    # sleep constraint vs commitment
+    # sleep constraint vs work
+    sleep_minus_work(x),
+    # Tuesday, Weds, Friday constraint
+    x[7]^2 - x[8]^2 - x[6]^2,
+    x[12]^2 - x[13]^2 - x[11]^2,
+    x[22]^2 - x[23]^2 - x[21]^2,
+    # Mon, Thursday constraint
+    0.6 * x[2]^2 - x[3]^2 - x[1]^2,
+    0.6 * x[17]^2 - x[18]^2 - x[16]^2
   )
   return (constr)
 }
@@ -180,3 +187,6 @@ res <- nloptr(x0 = x0,
 
 print(res)
 
+matrix_rep <- matrix(res$solution,
+                     nrow = 5,
+                     ncol = 7)
